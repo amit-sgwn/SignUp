@@ -15,13 +15,15 @@ class SignUpViewController: UIViewController , UITextFieldDelegate{
     @IBOutlet weak var email: UITextField!
     @IBOutlet weak var password: UITextField!
     
+    
+    //lazy var signUpModel : Sign
 //    var sharedfile : FileIO?
     override func viewDidLoad() {
         super.viewDidLoad()
         self.userName.delegate = self
-         self.phoneNumber.delegate = self
-         self.email.delegate = self
-         self.password.delegate = self
+        self.phoneNumber.delegate = self
+        self.email.delegate = self
+        self.password.delegate = self
        
     }
     
@@ -30,36 +32,46 @@ class SignUpViewController: UIViewController , UITextFieldDelegate{
         return false
     }
     
+    func animateTextField(textField : UITextField)
+    {
+        shakeTextField(textField : textField, numberOfShakes : 1, direction: 3.0, maxShakes : 6)
+    }
+    
     
     @IBAction func signUp(_ sender: UIButton) {
         
         var stringToStore : String?
     
-        guard let name = userName.text , let phoneno = phoneNumber.text, let email = email.text ,let  pass = password.text  else {
+        guard let name = userName.text , let phoneno = phoneNumber.text, let emailtext = email.text ,let  pass = password.text  else {
             self.showAlert(title: "Alert", message: "Enter all Field", buttonTitle: "Dismiss")
             return
         }
         
         if !phoneno.isPhone()
         {
-            showAlert(title: "Alert", message: "Invalid PhoneNumber", buttonTitle: "Dismiss")
+            shakeTextField (textField : phoneNumber, numberOfShakes : 1, direction: 3.0, maxShakes : 6)
+          //  showAlert(title: "Alert", message: "Invalid PhoneNumber", buttonTitle: "Dismiss")
             return
         }
-        if !email.isEmail
+        if !emailtext.isEmail
         {
+            animateTextField(textField : email)
             showAlert(title: "Alert", message: "Invalid Email", buttonTitle: "Dismiss")
             return
         }
         if !pass.isValidPassword
         {
+            animateTextField(textField : password)
             showAlert(title: "Alert", message: "Invalid Email", buttonTitle: "Dismiss")
             return
         }
        
-         stringToStore = "name : \(name) phoneNumber : \(phoneno) password : \(pass) email: \(email)"
+        stringToStore = "\(name),\(phoneno),\(pass),\(emailtext)"
       //  FileIO.sharedInstance.writeTextToFile(text: sharedfile!)
         writeTexttoFile(text : stringToStore!)
-        
+        if let navController = self.navigationController {
+            navController.popViewController(animated: true)
+        }
     }
     
     func showAlert(title : String, message : String, buttonTitle : String)
@@ -159,4 +171,30 @@ extension String {
         return  self == filtered
     }
 
+}
+
+
+extension SignUpViewController
+{
+    func shakeTextField (textField : UITextField, numberOfShakes : Int, direction: CGFloat, maxShakes : Int) {
+        
+        let interval : TimeInterval = 0.03
+        
+        UIView.animate(withDuration: interval, animations: { () -> Void in
+            textField.transform = CGAffineTransform(translationX: 5 * direction, y: 0)
+            textField.backgroundColor = UIColor.red
+        }, completion: { (aBool :Bool) -> Void in
+            
+            if (numberOfShakes >= maxShakes) {
+                textField.transform =  CGAffineTransform.identity
+                textField.backgroundColor = UIColor.white
+                textField.becomeFirstResponder()
+                return
+            }
+            
+            self.shakeTextField(textField: textField, numberOfShakes: numberOfShakes + 1, direction: direction * -1, maxShakes: maxShakes )
+            
+        })
+        
+    }
 }

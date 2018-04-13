@@ -30,54 +30,51 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
         return false
     }
     
+    func animateTextField(textField : UITextField)
+    {
+        shakeTextField(textField : textField, numberOfShakes : 1, direction: 3.0, maxShakes : 6)
+    }
+    
+    
+    
     @IBAction func loginAction(_ sender: Any) {
         
-        guard let email = email.text else  {
+        guard let emailtext = email.text else
+        {
+            animateTextField(textField: email)
             showAlert(title: "Alert", message: "Enter Email", buttonTitle: "Dismiss")
             return
         }
         
-        if let phonenumber = phoneNumber.text
+        guard let phonenumber = phoneNumber.text, let password = passWord.text else {
+            animateTextField(textField: phoneNumber)
+            animateTextField(textField: passWord)
+
+             showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
+            return
+        }
+        
+        if phonenumber.isPhone(), password.isValidPassword
         {
-            if phonenumber.isPhone()
+            if let text = checkLogin(email: emailtext, phonenumber: phonenumber, password: nil)
             {
-                if checkLogin(email: email, phonenumber: phonenumber, password: nil)
-                {
-                    showAlert(title: "Success", message: "Logged In", buttonTitle: "Dismiss")
-                }
-                else
-                {
-                    showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
-                }
-                
+                var stringretrived = StringManupulator(stringret: text)
+                print("name : \(stringretrived.getName())")
+                print("email \(stringretrived.getEmail())")
+                print("pass : \(stringretrived.getPassWord())")
+                print("phone : \(stringretrived.getPhoneNumber())")
+                showAlert(title: "Success", message: "Logged In", buttonTitle: "Dismiss")
             }
             else
             {
-                showAlert(title: "failed", message: "Invalid PhoneNumber", buttonTitle: "Dismiss")
+                showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
             }
+            
         }
-        
-        
-        if let password = passWord.text
+        else
         {
-            if password.isValidPassword
-            {
-                if checkLogin(email: email, phonenumber: nil, password: password)
-                {
-                    showAlert(title: "Success", message: "Logged In", buttonTitle: "Dismiss")
-                }
-                else
-                {
-                    showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
-                }
-                
-            }
-            else
-            {
-                showAlert(title: "failed", message: "Invalid Password", buttonTitle: "Dismiss")
-            }
+            showAlert(title: "failed", message: "Invalid PhoneNumber or PassWord", buttonTitle: "Dismiss")
         }
-        
     
         
     }
@@ -92,11 +89,9 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
         alert.show()
     }
     
-    func checkLogin(email : String , phonenumber : String? , password : String?) -> Bool
+    func checkLogin(email : String , phonenumber : String? , password : String?) -> String?
     {
-        var textStored =  readTextFromFile()
-        print(textStored)
-        return true
+        return readTextFromFile()
     }
     
     
@@ -109,16 +104,39 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = dir.appendingPathComponent(file)
 
-            
-                        do {
-                            let text2 = try String(contentsOf: fileURL, encoding: .utf8)
-                            text = text2
-                        }
-                        catch {/* error handling here */}
+            do {
+                let text2 = try String(contentsOf: fileURL, encoding: .utf8)
+                text = text2
+            }
+            catch {/* error handling here */}
         }
         return text
         
     }
-    
 
+}
+
+extension LoginViewController
+{
+    func shakeTextField (textField : UITextField, numberOfShakes : Int, direction: CGFloat, maxShakes : Int) {
+        
+        let interval : TimeInterval = 0.03
+        
+        UIView.animate(withDuration: interval, animations: { () -> Void in
+            textField.transform = CGAffineTransform(translationX: 5 * direction, y: 0)
+            textField.backgroundColor = UIColor.red
+        }, completion: { (aBool :Bool) -> Void in
+            
+            if (numberOfShakes >= maxShakes) {
+                textField.transform =  CGAffineTransform.identity
+                textField.backgroundColor = UIColor.white
+                textField.becomeFirstResponder()
+                return
+            }
+            
+            self.shakeTextField(textField: textField, numberOfShakes: numberOfShakes + 1, direction: direction * -1, maxShakes: maxShakes )
+            
+        })
+        
+    }
 }
