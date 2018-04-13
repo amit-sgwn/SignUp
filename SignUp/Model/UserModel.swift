@@ -10,19 +10,19 @@ import Foundation
 
 struct User
 {
-    var name : String
+    var name : String?
     var phoneNumber : String
-    var email : String?
+    var email : String
     var password : String
     
-    init(name : String , phonenumber : String, email : String? , password : String)
+    init(name : String? , phonenumber : String, email : String , password : String)
     {
-        self.name = name
-        self.phoneNumber = phonenumber
-        if let email = email
+        if let name = name
         {
-            self.email = email
+             self.name = name
         }
+        self.phoneNumber = phonenumber
+        self.email = email
         self.password = password
     }
 }

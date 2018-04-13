@@ -16,6 +16,9 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
     
 //    var emmailId : String?
 //    var
+    
+    var loginModel : LoginViewModel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -32,7 +35,7 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
     
     func animateTextField(textField : UITextField)
     {
-        shakeTextField(textField : textField, numberOfShakes : 1, direction: 3.0, maxShakes : 6)
+        shakeTextField (textField : textField, numberOfShakes : 1, direction: 3.0, maxShakes : 6)
     }
     
     
@@ -41,41 +44,51 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
         
         guard let emailtext = email.text else
         {
+            
+            animateTextField(textField: email)
+            showAlert(title: "Alert", message: "Enter Email", buttonTitle: "Dismiss")
+            return
+        }
+        if !emailtext.isEmail
+        {
             animateTextField(textField: email)
             showAlert(title: "Alert", message: "Enter Email", buttonTitle: "Dismiss")
             return
         }
         
         guard let phonenumber = phoneNumber.text, let password = passWord.text else {
-            animateTextField(textField: phoneNumber)
-            animateTextField(textField: passWord)
-
-             showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
             return
         }
         
-        if phonenumber.isPhone(), password.isValidPassword
+        if !phonenumber.isPhone()
         {
-            if let text = checkLogin(email: emailtext, phonenumber: phonenumber, password: nil)
+            animateTextField(textField: phoneNumber)
+            showAlert(title: "failed", message: "Invalid PhoneNumber", buttonTitle: "Dismiss")
+            return
+        }
+        if !password.isValidPassword
+        {
+            animateTextField(textField: passWord)
+            showAlert(title: "failed", message: "Invalid Password", buttonTitle: "Dismiss")
+            return
+        }
+        
+        loginModel = LoginViewModel(name: nil, email: emailtext, phoneNumber: phonenumber, password: password)
+        
+        
+        if loginModel!.checkIfAnyUserExist(email: emailtext, phonenumber: phonenumber, password: password)
+        {
+            if loginModel!.checkAuth()
             {
-                var stringretrived = StringManupulator(stringret: text)
-                print("name : \(stringretrived.getName())")
-                print("email \(stringretrived.getEmail())")
-                print("pass : \(stringretrived.getPassWord())")
-                print("phone : \(stringretrived.getPhoneNumber())")
-                showAlert(title: "Success", message: "Logged In", buttonTitle: "Dismiss")
+                print("Success")
             }
             else
             {
-                showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
+                print("Failed ")
             }
-            
         }
-        else
-        {
-            showAlert(title: "failed", message: "Invalid PhoneNumber or PassWord", buttonTitle: "Dismiss")
-        }
-    
+        
+
         
     }
     
@@ -89,30 +102,7 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
         alert.show()
     }
     
-    func checkLogin(email : String , phonenumber : String? , password : String?) -> String?
-    {
-        return readTextFromFile()
-    }
-    
-    
-    func readTextFromFile() -> String?
-    {
-        let file = "file.txt" //this is the file. we will write to and read from it
-        
-        var text : String? = nil//just a text
-        
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = dir.appendingPathComponent(file)
 
-            do {
-                let text2 = try String(contentsOf: fileURL, encoding: .utf8)
-                text = text2
-            }
-            catch {/* error handling here */}
-        }
-        return text
-        
-    }
 
 }
 
@@ -138,5 +128,12 @@ extension LoginViewController
             
         })
         
+    }
+}
+
+extension LoginViewModel
+{
+    convenience init(name : String? = nil , email : String , phoneNumber : String ,password : String) {
+        self.init(user: User(name: nil, phonenumber: phoneNumber, email: email, password: password))
     }
 }

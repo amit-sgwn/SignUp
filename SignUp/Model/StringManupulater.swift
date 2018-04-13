@@ -26,19 +26,22 @@ class StringManupulator
 
     func getPhoneNumber() -> String?
     {
-        let range = indexsofCommas[0]..<indexsofCommas[1]
+        let nextIndex = retrivedString.index(indexsofCommas[0], offsetBy: 1)
+        let range = nextIndex..<indexsofCommas[1]
         return String(retrivedString[range])
     }
 
     func getPassWord() -> String?
     {
-        let range = indexsofCommas[1]..<indexsofCommas[2]
+        let nextIndex = retrivedString.index(indexsofCommas[1], offsetBy: 1)
+        let range = nextIndex..<indexsofCommas[2]
         return String(retrivedString[range])
     }
 
     func getEmail() -> String?
     {
-        let range = indexsofCommas[2]..<retrivedString.endIndex
+        let nextIndex = retrivedString.index(indexsofCommas[2], offsetBy: 1)
+        let range = nextIndex..<retrivedString.endIndex
         return String(retrivedString[range])
     }
 }
