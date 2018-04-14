@@ -19,13 +19,16 @@ class ViewController: UIViewController {
     @IBAction func signUpAction(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateViewController(withIdentifier: "SignUpViewController")
-        self.present(controller, animated: true, completion: nil)
+        self.navigationController?.pushViewController(controller, animated: true)
+
+       // self.present(controller, animated: true, completion: nil)
     }
     
     @IBAction func loginAction(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
-        self.present(controller, animated: true, completion: nil)
+        self.navigationController?.pushViewController(controller, animated: true)
+       // self.present(controller, animated: true, completion: nil)
     }
     
 }

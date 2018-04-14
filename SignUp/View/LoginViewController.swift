@@ -42,6 +42,9 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
     
     @IBAction func loginAction(_ sender: Any) {
         
+        var phonenumber = ""
+        var password = ""
+        
         guard let emailtext = email.text else
         {
             
@@ -56,38 +59,60 @@ class LoginViewController: UIViewController , UITextFieldDelegate {
             return
         }
         
-        guard let phonenumber = phoneNumber.text, let password = passWord.text else {
-            return
+//        guard let phonenumber = phoneNumber.text, let password = passWord.text else {
+//            return
+//        }
+        
+        if let phone =  phoneNumber.text
+        {
+            phonenumber = phone
         }
         
-        if !phonenumber.isPhone()
+        if let pass = passWord.text
+        {
+            password = pass
+        }
+        
+        if !phonenumber.isPhone() && !password.isValidPassword
         {
             animateTextField(textField: phoneNumber)
-            showAlert(title: "failed", message: "Invalid PhoneNumber", buttonTitle: "Dismiss")
+            showAlert(title: "failed", message: "Invalid Credential", buttonTitle: "Dismiss")
             return
         }
-        if !password.isValidPassword
+    
+        if phonenumber.isPhone() || password.isValidPassword
+        {
+            loginModel = LoginViewModel(name: nil, email: emailtext, phoneNumber: phonenumber, password: password)
+            
+            
+            if loginModel!.checkIfAnyUserExist(email: emailtext, phonenumber: phonenumber, password: password)
+            {
+                if loginModel!.checkAuth()
+                {
+                    print("Success")
+                    showAlert(title: "Success", message: "You are LoggedIn", buttonTitle: "Dismiss")
+                }
+                else
+                {
+                    print("Failed ")
+                    showAlert(title: "Failed", message: "Wrong Credential ", buttonTitle: "Dismiss")
+                }
+            }
+            
+        }
+        else if !password.isValidPassword
         {
             animateTextField(textField: passWord)
             showAlert(title: "failed", message: "Invalid Password", buttonTitle: "Dismiss")
-            return
+         //   return
         }
-        
-        loginModel = LoginViewModel(name: nil, email: emailtext, phoneNumber: phonenumber, password: password)
-        
-        
-        if loginModel!.checkIfAnyUserExist(email: emailtext, phonenumber: phonenumber, password: password)
+        else
         {
-            if loginModel!.checkAuth()
-            {
-                print("Success")
-            }
-            else
-            {
-                print("Failed ")
-            }
+            animateTextField(textField: phoneNumber)
+            showAlert(title: "failed", message: "Invalid PhoneNumber", buttonTitle: "Dismiss")
         }
         
+       
 
         
     }
